@@ -7,9 +7,12 @@ const {
   updateGoal,
   deleteGoal,
 } = require("../controllers/goalController");
-const { createValidation, validate } = require("../middlewares/validator");
+const { createGoalValidation, validate } = require("../middlewares/validator");
 
-router.route("/").get(getGoals).post(createValidation, validate, createGoal);
+router
+  .route("/")
+  .get(getGoals)
+  .post(createGoalValidation, validate, createGoal);
 router.route("/:id").get(getGoal).delete(deleteGoal).put(updateGoal);
 
 module.exports = router;
