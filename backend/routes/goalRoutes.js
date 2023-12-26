@@ -8,11 +8,16 @@ const {
   deleteGoal,
 } = require("../controllers/goalController");
 const { createGoalValidation, validate } = require("../middlewares/validator");
+const { protect } = require("../middlewares/authMiddleware");
 
 router
   .route("/")
-  .get(getGoals)
-  .post(createGoalValidation, validate, createGoal);
-router.route("/:id").get(getGoal).delete(deleteGoal).put(updateGoal);
+  .get(protect, getGoals)
+  .post(protect, createGoalValidation, validate, createGoal);
+router
+  .route("/:id")
+  .get(protect, getGoal)
+  .delete(protect, deleteGoal)
+  .put(protect, updateGoal);
 
 module.exports = router;

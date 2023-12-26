@@ -11,31 +11,25 @@ const createGoalValidation = [
 const registerUserValidation = [
   body("name")
     .trim()
-    .notEmpty()
+    .exists()
     .isString()
     .isLength({ min: 5 })
     .withMessage("Name must be atleast 5 character"),
-  body("email").trim().notEmpty().isEmail().withMessage("Invalid Email"),
+  body("email").trim().exists().isEmail().withMessage("Invalid Email"),
   body("password")
     .trim()
-    .notEmpty()
+    .exists()
     .isLength({ min: 8 })
     .withMessage("Password must be atleast 8 character"),
 ];
 
 const loginUserValidation = [
-  body("email")
-    .trim()
-    .exists()
-    .withMessage("Email required")
-    .isEmail()
-    .withMessage("Enter a valid email"),
-  body("password")
-    .trim()
-    .exists()
-    .withMessage("Password is required")
-    .isLength({ min: 8 })
-    .withMessage("Password must be atleast 8 character"),
+  body("email").trim().exists().isEmail().withMessage("Enter a valid email"),
+  // body("password")
+  //   .trim()
+  //   .exists()
+  //   .isLength({ min: 8 })
+  //   .withMessage("Password must be atleast 8 character"),
 ];
 
 const validate = (req, res, next) => {
