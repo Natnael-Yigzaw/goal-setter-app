@@ -3,7 +3,8 @@ const router = express.Router();
 const {
   registerUser,
   loginUser,
-  getMe,
+  logoutUser,
+  getProfile,
 } = require("../controllers/userController");
 const {
   registerUserValidation,
@@ -14,6 +15,7 @@ const { protect } = require("../middlewares/authMiddleware");
 
 router.route("/").post(registerUserValidation, validate, registerUser);
 router.route("/login").post(loginUserValidation, validate, loginUser);
-router.route("/me").get(protect, getMe);
+router.route("/logout").get(protect, logoutUser);
+router.route("/profile").get(protect, getProfile);
 
 module.exports = router;

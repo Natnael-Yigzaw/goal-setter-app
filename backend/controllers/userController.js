@@ -1,34 +1,53 @@
 const asyncHandler = require("express-async-handler");
 const User = require("../models/User");
 const generateToken = require("../utils/generateToken");
+const sendEmail = require("../utils/sendEmail");
 
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body;
+  try {
+    const { name, email, password } = req.body;
 
-  const userExist = await User.findOne({ email });
+    // Check if user already exists
+    const userExist = await User.findOne({ email });
 
-  if (userExist) {
-    return res.status(400).json({ message: "User already exists" });
-  }
+    if (userExist) {
+      return res.status(400).json({ message: "User already exists" });
+    }
 
-  // if not exist then create
-  const user = await User.create({
-    name,
-    email,
-    password,
-  });
-
-  if (user) {
-    generateToken(res, user._id);
-
-    res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
+    // Create a new user
+    const user = await User.create({
+      name,
+      email,
+      password,
     });
-  } else {
-    res.status(400);
-    throw new Error("Invalid user data");
+
+    if (user) {
+      // Generate authentication token
+      generateToken(res, user._id);
+
+      // Respond with user details
+      res.status(201).json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+      });
+
+      // Send registration email
+      const text = `You are registered successfully`;
+      await sendEmail({
+        email: user.email,
+        subject: "Successful Registration",
+        text,
+      });
+
+      console.log(`Email sent successfully to: ${user.email}`);
+    } else {
+      res.status(400);
+      throw new Error("Invalid user data");
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
@@ -50,7 +69,15 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 });
 
-const getMe = asyncHandler(async (req, res) => {
+const logoutUser = asyncHandler(async (req, res) => {
+  res.cookie("jwt", "", {
+    httpOnly: true,
+    expires: new Date(0),
+  });
+  res.status(200).json({ message: "Logged out Successfully." });
+});
+
+const getProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
   if (user) {
     res.json({
@@ -64,4 +91,4 @@ const getMe = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { registerUser, loginUser, getMe };
+module.exports = { registerUser, loginUser, logoutUser, getProfile };
