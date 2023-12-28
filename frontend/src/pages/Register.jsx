@@ -1,7 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { FaUser } from "react-icons/fa";
+import { register, reset } from "../feautres/auth/authSlice";
+import Spinner from "../components/Spinner";
 
-const Register = () => {
+function Register() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -11,9 +16,46 @@ const Register = () => {
 
   const { name, email, password, confirmPassword } = formData;
 
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const { user, isLoading, isSuccess, isError, message } = useSelector(
+    (state) => state.auth
+  );
+  useEffect(() => {
+    if (isError) {
+      toast.error(message);
+    }
+    if (isSuccess || user) {
+      navigate("/");
+    }
+    dispatch(reset());
+  }, [user, isError, isSuccess, message, navigate, dispatch]);
+
+  const onChange = (e) => {
+    setFormData((prevState) => ({
+      ...prevState,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
   const onSubmit = (e) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      toast("Passwords do not match", { type: "error" });
+    } else {
+      const userData = {
+        name,
+        email,
+        password,
+      };
+      dispatch(register(userData));
+    }
   };
+
+  if (isLoading) {
+    return <Spinner />;
+  }
 
   return (
     <>
@@ -27,44 +69,49 @@ const Register = () => {
           <div className="form-group">
             <input
               type="text"
+              autoComplete="given-name"
               className="form-control"
               id="name"
               name="name"
               value={name}
               placeholder="Enter your name"
-              onChange={(e) => setFormData("name", e.target.value)}
+              onChange={onChange}
             />
           </div>
           <div className="form-group">
             <input
               type="email"
+              autoComplete="off"
               className="form-control"
               id="email"
               name="email"
               value={email}
               placeholder="Enter your email"
-              onChange={(e) => setFormData("email", e.target.value)}
+              onChange={onChange}
             />
           </div>
           <div className="form-group">
             <input
               type="password"
+              autoComplete="off"
               className="form-control"
               id="password"
               name="password"
               value={password}
               placeholder="Enter your password"
-              onChange={(e) => setFormData("password", e.target.value)}
+              onChange={onChange}
             />
           </div>
           <div className="form-group">
             <input
               type="password"
+              autoComplete="off"
               className="form-control"
               id="confirmPassword"
               name="confirmPassword"
               value={confirmPassword}
               placeholder="Confirm your password"
+              onChange={onChange}
             />
           </div>
           <div className="form-group">
@@ -76,6 +123,6 @@ const Register = () => {
       </section>
     </>
   );
-};
+}
 
 export default Register;
