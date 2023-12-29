@@ -1,35 +1,21 @@
 const { body, validationResult } = require("express-validator");
 
 const createGoalValidation = [
-  body("text")
-    .trim()
-    .notEmpty()
-    .isLength({ min: 10 })
-    .withMessage("The text must contain atleast 10 characters"),
+  body("text").trim().notEmpty().withMessage("The text can not be empty"),
 ];
 
 const registerUserValidation = [
-  body("name")
-    .trim()
-    .exists()
-    .isString()
-    .isLength({ min: 5 })
-    .withMessage("Name must be atleast 5 character"),
+  body("name").trim().exists().isString().withMessage("Name can not be empty"),
   body("email").trim().exists().isEmail().withMessage("Invalid Email"),
   body("password")
     .trim()
     .exists()
-    .isLength({ min: 8 })
-    .withMessage("Password must be atleast 8 character"),
+    .isLength({ min: 6 })
+    .withMessage("Password must be atleast 6 character"),
 ];
 
 const loginUserValidation = [
   body("email").trim().exists().isEmail().withMessage("Enter a valid email"),
-  // body("password")
-  //   .trim()
-  //   .exists()
-  //   .isLength({ min: 8 })
-  //   .withMessage("Password must be atleast 8 character"),
 ];
 
 const validate = (req, res, next) => {

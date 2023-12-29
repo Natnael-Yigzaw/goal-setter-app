@@ -7,14 +7,12 @@ const registerUser = asyncHandler(async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // Check if user already exists
     const userExist = await User.findOne({ email });
 
     if (userExist) {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // Create a new user
     const user = await User.create({
       name,
       email,
@@ -22,10 +20,8 @@ const registerUser = asyncHandler(async (req, res) => {
     });
 
     if (user) {
-      // Generate authentication token
       generateToken(res, user._id);
 
-      // Respond with user details
       res.status(201).json({
         _id: user._id,
         name: user.name,
